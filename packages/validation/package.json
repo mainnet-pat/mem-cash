@@ -1,6 +1,6 @@
 {
 	"name": "@mem-cash/validation",
-	"version": "0.0.1",
+	"version": "0.0.2",
 	"description": "Stateless BCH transaction evaluator with BCHN-compatible consensus and policy checks",
 	"type": "module",
 	"sideEffects": false,

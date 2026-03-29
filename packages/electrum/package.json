@@ -1,6 +1,6 @@
 {
 	"name": "@mem-cash/electrum",
-	"version": "0.0.1",
+	"version": "0.0.2",
 	"description": "Fulcrum-compatible Electrum Cash protocol handlers and dispatch for mem-cash",
 	"type": "module",
 	"sideEffects": false,
@@ -38,12 +38,12 @@
 	},
 	"dependencies": {
 		"@bitauth/libauth": "^3.1.0-next.8",
-		"@mem-cash/core": "0.0.1",
-		"@mem-cash/storage": "0.0.1",
-		"@mem-cash/types": "0.0.1"
+		"@mem-cash/core": "0.0.2",
+		"@mem-cash/storage": "0.0.2",
+		"@mem-cash/types": "0.0.2"
 	},
 	"peerDependencies": {
-		"@mem-cash/validation": "0.0.1"
+		"@mem-cash/validation": "0.0.2"
 	},
 	"peerDependenciesMeta": {
 		"@mem-cash/validation": {

@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.0.2
+
+VM node's 'addUtxo' accepts addresses.
+
 ## 0.0.1
 
 Initial release. In-memory Bitcoin Cash VM and Electrum Cash protocol in TypeScript.
