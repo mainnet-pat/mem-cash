@@ -1,6 +1,6 @@
 {
 	"private": true,
-	"description": "Electrum Cash protocol implementation in modern, tree-shakeable TypeScript",
+	"description": "Modern, tree-shakeable TypeScript implementation of the in-memory Bitcoin Cash VM and Electrum Cash protocol ",
 	"license": "MIT",
 	"repository": {
 		"type": "git",
@@ -18,7 +18,8 @@
 		"biome": "biome check --write",
 		"lint": "biome lint",
 		"format": "biome format --write",
-		"bump": "node bump.mjs"
+		"bump": "node bump.mjs",
+		"publish:all": "yarn build && npm publish --access public -w packages/types && npm publish --access public -w packages/storage && npm publish --access public -w packages/validation && npm publish --access public -w packages/core && npm publish --access public -w packages/electrum"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "^2.3.15",
