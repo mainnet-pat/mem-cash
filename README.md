@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="assets/logo.svg" width="128" height="128" alt="mem-cash logo">
+</p>
+
 # mem-cash
 
 Modern, tree-shakeable TypeScript implementation of the in-memory Bitcoin Cash VM and Electrum Cash protocol.
@@ -42,16 +46,15 @@ import { createIndexer } from "@mem-cash/electrum";
 const indexer = createIndexer();
 indexer.setChainTip(200, 1700000000);
 
+const address = "bitcoincash:qz46h2at4w46h2at4vetysdy5q";
+
 // Add a UTXO
-const { txid } = await indexer.request("test.add_utxo", [
-  "bitcoincash:qz46h2at4w46h2at4vetysdy5q",
-  { satoshis: 10000 },
-]);
+const { txid } = await indexer.request("test.add_utxo", [address, { satoshis: 10000 }]);
 
 // Query via Electrum protocol
-const balance = await indexer.request("blockchain.scripthash.get_balance", [scriptHash]);
-const history = await indexer.request("blockchain.scripthash.get_history", [scriptHash]);
-const utxos = await indexer.request("blockchain.scripthash.listunspent", [scriptHash]);
+const balance = await indexer.request("blockchain.address.get_balance", [address]);
+const history = await indexer.request("blockchain.address.get_history", [address]);
+const utxos = await indexer.request("blockchain.address.listunspent", [address]);
 ```
 
 ### Using the VM layer directly
@@ -65,7 +68,7 @@ const node = createNode({ verifier });
 node.setChainTip(200, 1700000000);
 
 // Add UTXOs, submit transactions, mine blocks
-node.addUtxo({ txid, vout: 0, satoshis: 10_000n, scriptHash, height: 100, lockingBytecode });
+node.addUtxo({ txid, vout: 0, satoshis: 10_000n, address: "bitcoincash:qp...", height: 100 });
 const result = node.submitTransaction(rawHex);
 const debug = node.debugTransaction(rawHex); // per-input VM traces without mempool acceptance
 const { height } = node.mine();

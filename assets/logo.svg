@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0AC18E"/>
+      <stop offset="100%" stop-color="#078C66"/>
+    </linearGradient>
+    <linearGradient id="chip" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.95"/>
+      <stop offset="100%" stop-color="#e8e8e8" stop-opacity="0.95"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Rounded background -->
+  <rect width="512" height="512" rx="96" fill="url(#bg)"/>
+
+  <!-- Memory chip body -->
+  <rect x="136" y="136" width="240" height="240" rx="24" fill="url(#chip)"/>
+
+  <!-- Chip pins - top -->
+  <rect x="180" y="108" width="16" height="44" rx="4" fill="#fff" opacity="0.8"/>
+  <rect x="216" y="108" width="16" height="44" rx="4" fill="#fff" opacity="0.8"/>
+  <rect x="252" y="108" width="16" height="44" rx="4" fill="#fff" opacity="0.8"/>
+  <rect x="288" y="108" width="16" height="44" rx="4" fill="#fff" opacity="0.8"/>
+  <rect x="324" y="108" width="16" height="44" rx="4" fill="#fff" opacity="0.8"/>
+
+  <!-- Chip pins - bottom -->
+  <rect x="180" y="360" width="16" height="44" rx="4" fill="#fff" opacity="0.8"/>
+  <rect x="216" y="360" width="16" height="44" rx="4" fill="#fff" opacity="0.8"/>
+  <rect x="252" y="360" width="16" height="44" rx="4" fill="#fff" opacity="0.8"/>
+  <rect x="288" y="360" width="16" height="44" rx="4" fill="#fff" opacity="0.8"/>
+  <rect x="324" y="360" width="16" height="44" rx="4" fill="#fff" opacity="0.8"/>
+
+  <!-- Chip pins - left -->
+  <rect x="108" y="180" width="44" height="16" rx="4" fill="#fff" opacity="0.8"/>
+  <rect x="108" y="216" width="44" height="16" rx="4" fill="#fff" opacity="0.8"/>
+  <rect x="108" y="252" width="44" height="16" rx="4" fill="#fff" opacity="0.8"/>
+  <rect x="108" y="288" width="44" height="16" rx="4" fill="#fff" opacity="0.8"/>
+  <rect x="108" y="324" width="44" height="16" rx="4" fill="#fff" opacity="0.8"/>
+
+  <!-- Chip pins - right -->
+  <rect x="360" y="180" width="44" height="16" rx="4" fill="#fff" opacity="0.8"/>
+  <rect x="360" y="216" width="44" height="16" rx="4" fill="#fff" opacity="0.8"/>
+  <rect x="360" y="252" width="44" height="16" rx="4" fill="#fff" opacity="0.8"/>
+  <rect x="360" y="288" width="44" height="16" rx="4" fill="#fff" opacity="0.8"/>
+  <rect x="360" y="324" width="44" height="16" rx="4" fill="#fff" opacity="0.8"/>
+
+  <!-- Bitcoin sign on chip (tilted CCW like BCH logo) -->
+  <g transform="translate(256, 256) rotate(-10)">
+    <text x="0" y="42" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-weight="700" font-size="120" fill="#0AC18E" stroke="#0AC18E" stroke-width="5">&#x20BF;</text>
+  </g>
+
+  <!-- Corner notch on chip (IC marker) -->
+  <circle cx="164" cy="164" r="12" fill="#0AC18E" opacity="0.4"/>
+</svg>
