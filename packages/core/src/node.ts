@@ -1,5 +1,6 @@
 import {
 	binToHex,
+	cashAddressToLockingBytecode,
 	decodeTransactionBch,
 	hashTransactionUiOrder,
 	hexToBin,
@@ -41,12 +42,15 @@ export interface NodeConfig {
 	readonly verifier?: TxVerifier;
 }
 
-/** Parameters for adding a UTXO. */
+/** Parameters for adding a UTXO. Provide `address` or `scriptHash` + `lockingBytecode`. */
 export interface AddUtxoParams {
 	readonly txid: string;
 	readonly vout: number;
 	readonly satoshis: bigint;
-	readonly scriptHash: string;
+	/** Cash address (e.g. "bitcoincash:qp..."). Derives scriptHash and lockingBytecode automatically. */
+	readonly address?: string;
+	/** Explicit scriptHash. Required if address is not provided. */
+	readonly scriptHash?: string;
 	readonly height: number;
 	readonly lockingBytecode?: Uint8Array;
 	readonly isCoinbase?: boolean;
@@ -254,15 +258,30 @@ export function createNode(config?: NodeConfig): Node {
 	}
 
 	function addUtxo(params: AddUtxoParams): void {
+		let { scriptHash, lockingBytecode } = params;
+
+		if (params.address) {
+			const decoded = cashAddressToLockingBytecode(params.address);
+			if (typeof decoded === "string") {
+				throw new Error(`Invalid address: ${decoded}`);
+			}
+			lockingBytecode = lockingBytecode ?? decoded.bytecode;
+			scriptHash = scriptHash ?? binToHex(sha256.hash(decoded.bytecode));
+		}
+
+		if (!scriptHash) {
+			throw new Error("Either address or scriptHash must be provided");
+		}
+
 		storage._test.utxo.add(
 			Object.assign(
 				{
 					txid: params.txid,
 					vout: params.vout,
 					satoshis: params.satoshis,
-					scriptHash: params.scriptHash,
+					scriptHash,
 					height: params.height,
-					lockingBytecode: params.lockingBytecode ?? new Uint8Array(0),
+					lockingBytecode: lockingBytecode ?? new Uint8Array(0),
 				},
 				params.isCoinbase ? { isCoinbase: true } : {},
 			),

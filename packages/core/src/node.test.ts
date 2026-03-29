@@ -1,5 +1,6 @@
 import {
 	binToHex,
+	cashAddressToLockingBytecode,
 	encodeTransactionBch,
 	hashTransactionUiOrder,
 	hexToBin,
@@ -457,6 +458,70 @@ describe("createNode", () => {
 			const utxos = node.storage.getUtxos(OP_TRUE_SH);
 			expect(utxos).toHaveLength(1);
 			expect(utxos[0]?.lockingBytecode).toEqual(new Uint8Array(0));
+		});
+
+		it("derives scriptHash and lockingBytecode from address", () => {
+			const node = createNode();
+			const address = "bitcoincash:qz46h2at4w46h2at4w46h2at4w46h2at4vetysdy5q";
+			const decoded = cashAddressToLockingBytecode(address);
+			if (typeof decoded === "string") throw new Error(decoded);
+			const expectedSh = binToHex(sha256.hash(decoded.bytecode));
+
+			node.addUtxo({
+				txid: "ee".repeat(32),
+				vout: 0,
+				satoshis: 7000n,
+				address,
+				height: 100,
+			});
+
+			const utxos = node.storage.getUtxos(expectedSh);
+			expect(utxos).toHaveLength(1);
+			expect(utxos[0]?.satoshis).toBe(7000n);
+			expect(utxos[0]?.lockingBytecode).toEqual(decoded.bytecode);
+		});
+
+		it("throws for invalid address", () => {
+			const node = createNode();
+			expect(() =>
+				node.addUtxo({
+					txid: "ff".repeat(32),
+					vout: 0,
+					satoshis: 1000n,
+					address: "not-a-valid-address",
+					height: 100,
+				}),
+			).toThrow("Invalid address");
+		});
+
+		it("throws when neither address nor scriptHash is provided", () => {
+			const node = createNode();
+			expect(() =>
+				node.addUtxo({
+					txid: "ff".repeat(32),
+					vout: 0,
+					satoshis: 1000n,
+					height: 100,
+				}),
+			).toThrow("Either address or scriptHash must be provided");
+		});
+
+		it("prefers explicit scriptHash over address-derived one", () => {
+			const node = createNode();
+			const address = "bitcoincash:qz46h2at4w46h2at4w46h2at4w46h2at4vetysdy5q";
+
+			node.addUtxo({
+				txid: "ff".repeat(32),
+				vout: 0,
+				satoshis: 3000n,
+				address,
+				scriptHash: OP_TRUE_SH,
+				height: 100,
+			});
+
+			const utxos = node.storage.getUtxos(OP_TRUE_SH);
+			expect(utxos).toHaveLength(1);
+			expect(utxos[0]?.satoshis).toBe(3000n);
 		});
 	});
 });
