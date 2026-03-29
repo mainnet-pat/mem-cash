@@ -1,0 +1,43 @@
+{
+	"name": "@mem-cash/storage",
+	"version": "0.0.1",
+	"description": "In-memory storage implementation for the mem-cash Electrum Cash protocol",
+	"type": "module",
+	"sideEffects": false,
+	"main": "./dist/index.js",
+	"types": "./dist/index.d.ts",
+	"exports": {
+		".": {
+			"types": "./dist/index.d.ts",
+			"import": "./dist/index.js"
+		}
+	},
+	"files": [
+		"dist/",
+		"README.md",
+		"LICENSE"
+	],
+	"license": "MIT",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/mainnet-pat/mem-cash.git",
+		"directory": "packages/storage"
+	},
+	"keywords": [
+		"bitcoin-cash",
+		"electrum",
+		"storage",
+		"utxo",
+		"mempool"
+	],
+	"engines": {
+		"node": ">=20"
+	},
+	"scripts": {
+		"prepublishOnly": "tsc -b"
+	},
+	"dependencies": {
+		"@bitauth/libauth": "^3.1.0-next.8",
+		"@mem-cash/types": "0.0.1"
+	}
+}

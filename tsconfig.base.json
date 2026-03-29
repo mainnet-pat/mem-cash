@@ -1,0 +1,21 @@
+{
+	"compilerOptions": {
+		"module": "nodenext",
+		"target": "es2022",
+		"lib": ["es2022"],
+		"types": ["node"],
+		"moduleResolution": "nodenext",
+		"moduleDetection": "force",
+		"sourceMap": true,
+		"declaration": true,
+		"declarationMap": true,
+		"strict": true,
+		"noUncheckedIndexedAccess": true,
+		"exactOptionalPropertyTypes": true,
+		"verbatimModuleSyntax": true,
+		"isolatedModules": true,
+		"skipLibCheck": true,
+		"esModuleInterop": true,
+		"composite": true
+	}
+}

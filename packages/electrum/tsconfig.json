@@ -1,0 +1,15 @@
+{
+	"extends": "../../tsconfig.base.json",
+	"compilerOptions": {
+		"rootDir": "./src",
+		"outDir": "./dist"
+	},
+	"include": ["src"],
+	"exclude": ["node_modules", "dist", "src/**/*.test.ts"],
+	"references": [
+		{ "path": "../types" },
+		{ "path": "../storage" },
+		{ "path": "../core" },
+		{ "path": "../validation" }
+	]
+}

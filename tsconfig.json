@@ -1,0 +1,10 @@
+{
+	"files": [],
+	"references": [
+		{ "path": "packages/types" },
+		{ "path": "packages/storage" },
+		{ "path": "packages/validation" },
+		{ "path": "packages/core" },
+		{ "path": "packages/electrum" }
+	]
+}
