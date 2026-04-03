@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.0.3
+
+Node's `setVerifier` allows setting the transaction verifier after creation.
+
 ## 0.0.2
 
 VM node's 'addUtxo' accepts addresses.
