@@ -104,6 +104,9 @@ export interface Node extends StorageReader {
 	/** Add a UTXO to the confirmed set. */
 	readonly addUtxo: (params: AddUtxoParams) => void;
 
+	/** Set or replace the transaction verifier. */
+	readonly setVerifier: (verifier: TxVerifier) => void;
+
 	/** The underlying storage with test helpers for direct manipulation. */
 	readonly storage: TestableStorage;
 
@@ -123,7 +126,7 @@ export interface Node extends StorageReader {
 export function createNode(config?: NodeConfig): Node {
 	const storage = createMemoryStorage();
 
-	const verifier = config?.verifier;
+	let verifier = config?.verifier;
 	const subscriptions = createSubscriptionManager(storage);
 
 	function deriveChainState(): ChainState | null {
@@ -356,6 +359,10 @@ export function createNode(config?: NodeConfig): Node {
 		return { height: newHeight, affectedScriptHashes };
 	}
 
+	function setVerifier(v: TxVerifier): void {
+		verifier = v;
+	}
+
 	return {
 		// StorageReader delegation
 		getHeader: storage.getHeader,
@@ -379,6 +386,7 @@ export function createNode(config?: NodeConfig): Node {
 		mine,
 		setChainTip,
 		addUtxo,
+		setVerifier,
 		storage,
 		subscriptions,
 	};
