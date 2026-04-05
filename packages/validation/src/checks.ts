@@ -262,7 +262,10 @@ export function checkDustOutputs(
 		const outputSize = 8 + (scriptLen < 253 ? 1 : 3) + scriptLen;
 		// 148 = estimated input size to spend (32 prevhash + 4 previndex + 1 scriptLen + 107 sigScript + 4 sequence)
 		const spendSize = outputSize + 148;
-		const dustThreshold = (3n * dustRelayFeePerKb * BigInt(spendSize)) / 1000n;
+		// Match BCHN: 3 * CFeeRate::GetFee(nSize) — floor division with min 1 sat
+		let feePerOutput = (dustRelayFeePerKb * BigInt(spendSize)) / 1000n;
+		if (feePerOutput === 0n && spendSize > 0 && dustRelayFeePerKb > 0n) feePerOutput = 1n;
+		const dustThreshold = 3n * feePerOutput;
 
 		if (output.valueSatoshis < dustThreshold) {
 			return { ok: false, code: REJECT_NONSTANDARD, error: "dust" };
