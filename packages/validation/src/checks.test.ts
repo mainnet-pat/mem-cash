@@ -275,21 +275,37 @@ describe("checkMinRelayFee", () => {
 		if (!result.ok) expect(result.error).toBe("min relay fee not met");
 	});
 
-	it("handles rounding correctly (ceiling division)", () => {
-		// 1000 * 1 / 1000 = 1 → ceil = 1
+	it("uses floor division matching BCHN CFeeRate::GetFee", () => {
+		// 1000 * 1 / 1000 = 1
 		const result = checkMinRelayFee(1n, 1, 1000n);
 		expect(result.ok).toBe(true);
 
-		// 1000 * 999 / 1000 = 999 → ceil = 999
+		// 1000 * 999 / 1000 = 999
 		const result2 = checkMinRelayFee(999n, 999, 1000n);
 		expect(result2.ok).toBe(true);
 
-		// 1000 * 1001 / 1000 = 1001 exactly (no rounding needed), so fee 1001 passes
+		// 1000 * 1001 / 1000 = 1001 exactly, so fee 1001 passes
 		const result3 = checkMinRelayFee(1001n, 1001, 1000n);
 		expect(result3.ok).toBe(true);
 
 		// But fee 1000 for 1001 bytes fails (need 1001)
 		const result4 = checkMinRelayFee(1000n, 1001, 1000n);
+		expect(result4.ok).toBe(false);
+	});
+
+	it("floors to min 1 sat for non-zero size and positive rate (BCHN special case)", () => {
+		// 3 sat/KB * 500 bytes = 1500 / 1000 = 1 (floor), so fee 1 passes
+		const result = checkMinRelayFee(1n, 500, 3n);
+		expect(result.ok).toBe(true);
+
+		// fee 0 fails (min 1 sat when rate > 0 and size > 0)
+		const result2 = checkMinRelayFee(0n, 500, 3n);
+		expect(result2.ok).toBe(false);
+
+		// 1 sat/KB * 999 bytes = 999 / 1000 = 0 (floor) → bumped to 1 sat
+		const result3 = checkMinRelayFee(1n, 999, 1n);
+		expect(result3.ok).toBe(true);
+		const result4 = checkMinRelayFee(0n, 999, 1n);
 		expect(result4.ok).toBe(false);
 	});
 

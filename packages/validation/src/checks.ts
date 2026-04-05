@@ -214,7 +214,8 @@ export function checkSequenceLocks(
  * BCHN: AcceptToMemoryPoolWorker → "min relay fee not met" (REJECT_INSUFFICIENTFEE, DoS 0).
  */
 export function checkMinRelayFee(fee: bigint, txSize: number, minFeePerKb: bigint): CheckResult {
-	const minFee = (minFeePerKb * BigInt(txSize) + 999n) / 1000n;
+	let minFee = (minFeePerKb * BigInt(txSize)) / 1000n;
+	if (minFee === 0n && txSize > 0 && minFeePerKb > 0n) minFee = 1n;
 	if (fee < minFee) {
 		return { ok: false, code: REJECT_INSUFFICIENTFEE, error: "min relay fee not met" };
 	}
