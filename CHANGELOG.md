@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.0.4
+
+Fix fee policy checks to match BCHN behavior:
+- `checkMinRelayFee` now uses floor division with min-1-sat guard (matching `CFeeRate::GetFee`).
+- `checkDustOutputs` now computes `3 * GetFee(nSize)` matching BCHN's `GetDustThreshold` order of operations.
+
 ## 0.0.3
 
 Node's `setVerifier` allows setting the transaction verifier after creation.
