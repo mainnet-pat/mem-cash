@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.0.5
+
+Rework createVmFacade to be sync.
+
 ## 0.0.4
 
 Fix fee policy checks to match BCHN behavior:
