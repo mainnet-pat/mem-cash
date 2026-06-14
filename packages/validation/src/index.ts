@@ -9,11 +9,13 @@ export {
 	checkNullPrevout,
 	checkSequenceLocks,
 	checkUnspendableInputs,
+	getDustThreshold,
 } from "./checks.js";
 export {
 	COINBASE_MATURITY,
 	DEFAULT_MAX_FEE,
 	DEFAULT_MIN_RELAY_FEE_PER_KB,
+	DUST_RELAY_FEE_PER_KB,
 	LOCKTIME_THRESHOLD,
 	MAX_MONEY,
 	MAX_SCRIPT_SIZE,
@@ -41,4 +43,5 @@ export type {
 	VerifySuccess,
 	VmVersion,
 } from "./types.js";
-export { createTxVerifier } from "./verifier.js";
+export type { VmFacade } from "./verifier.js";
+export { createTxVerifier, createVmFacade } from "./verifier.js";

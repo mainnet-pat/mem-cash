@@ -22,7 +22,12 @@ import {
 	checkSequenceLocks,
 	checkUnspendableInputs,
 } from "./checks.js";
-import { DEFAULT_MAX_FEE, DEFAULT_MIN_RELAY_FEE_PER_KB, MAX_MONEY } from "./constants.js";
+import {
+	DEFAULT_MAX_FEE,
+	DEFAULT_MIN_RELAY_FEE_PER_KB,
+	DUST_RELAY_FEE_PER_KB,
+	MAX_MONEY,
+} from "./constants.js";
 import type {
 	ChainState,
 	DebugInputResult,
@@ -37,7 +42,7 @@ import type {
 } from "./types.js";
 
 /** VM abstraction to unify the different version-specific types. */
-interface VmFacade {
+export interface VmFacade {
 	verify(resolved: { sourceOutputs: Output[]; transaction: unknown }): true | string;
 	debugInput(program: { inputIndex: number; sourceOutputs: Output[]; transaction: unknown }): {
 		success: boolean;
@@ -46,7 +51,7 @@ interface VmFacade {
 }
 
 /** Create a libauth VM for the given version. */
-function createVmFacade(version: VmVersion, standard: boolean): VmFacade {
+export function createVmFacade(version: VmVersion, standard: boolean): VmFacade {
 	const createFn = (() => {
 		switch (version) {
 			case "BCH_2023_05":
@@ -140,6 +145,8 @@ export function createTxVerifier(config?: TxVerifierConfig): TxVerifier {
 	const standard = config?.standard ?? true;
 	const minRelayFeePerKb = config?.minRelayFeePerKb ?? DEFAULT_MIN_RELAY_FEE_PER_KB;
 	const maxFee = config?.maxFee ?? DEFAULT_MAX_FEE;
+	const skipFeePolicy = config?.skipFeePolicy ?? false;
+	const dustRelayFeePerKb = config?.dustRelayFeePerKb ?? DUST_RELAY_FEE_PER_KB;
 	if (minRelayFeePerKb <= 0n) {
 		throw new Error("minRelayFeePerKb must be positive");
 	}
@@ -270,18 +277,19 @@ export function createTxVerifier(config?: TxVerifierConfig): TxVerifier {
 		);
 		if (!seqCheck.ok) return seqCheck;
 
-		// 10. Min relay fee check (policy)
-		const size = encodedBytes.length;
-		const feeCheck = checkMinRelayFee(fee, size, minRelayFeePerKb);
-		if (!feeCheck.ok) return feeCheck;
+		// 10-11. Fee policy checks (min-relay + absurd-fee). Skipped for unfunded txs.
+		if (!skipFeePolicy) {
+			const size = encodedBytes.length;
+			const feeCheck = checkMinRelayFee(fee, size, minRelayFeePerKb);
+			if (!feeCheck.ok) return feeCheck;
 
-		// 11. Absurd fee guard (policy)
-		const absurdCheck = checkAbsurdFee(fee, maxFee);
-		if (!absurdCheck.ok) return absurdCheck;
+			const absurdCheck = checkAbsurdFee(fee, maxFee);
+			if (!absurdCheck.ok) return absurdCheck;
+		}
 
-		// 12. Dust output check (policy, matches BCHN IsStandardTx)
+		// 12. Dust output check (policy, matches BCHN IsStandardTx). Uses the fixed dust relay fee.
 		if (standard) {
-			const dustCheck = checkDustOutputs(decoded.outputs, minRelayFeePerKb);
+			const dustCheck = checkDustOutputs(decoded.outputs, dustRelayFeePerKb);
 			if (!dustCheck.ok) return dustCheck;
 		}
 

@@ -13,6 +13,10 @@ export interface TxVerifierConfig {
 	minRelayFeePerKb?: bigint;
 	/** Maximum acceptable fee in satoshis (default: 10_000_000 = 0.1 BCH). */
 	maxFee?: bigint;
+	/** Skip fee policy (min-relay + absurd-fee); consensus/scripts/dust still run. For unfunded txs. Default: false. */
+	skipFeePolicy?: boolean;
+	/** Dust relay fee in sat/KB (default: DUST_RELAY_FEE_PER_KB). Fixed, independent of minRelayFeePerKb. */
+	dustRelayFeePerKb?: bigint;
 }
 
 /**

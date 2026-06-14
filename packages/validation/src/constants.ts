@@ -42,3 +42,6 @@ export const DEFAULT_MIN_RELAY_FEE_PER_KB = 1000n;
 
 /** Default maximum acceptable fee in satoshis (0.1 BCH). */
 export const DEFAULT_MAX_FEE = 10_000_000n;
+
+/** Fixed dust relay fee in sat/KB. BCHN's `dustRelayFee`, separate from `minRelayTxFee`. */
+export const DUST_RELAY_FEE_PER_KB = 1000n;

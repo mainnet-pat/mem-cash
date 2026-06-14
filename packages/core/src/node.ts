@@ -17,6 +17,7 @@ import type {
 	ProcessedBlockTx,
 	ScriptHash,
 	StorageReader,
+	TokenData,
 	UtxoEntry,
 } from "@mem-cash/types";
 import {
@@ -54,6 +55,8 @@ export interface AddUtxoParams {
 	readonly height: number;
 	readonly lockingBytecode?: Uint8Array;
 	readonly isCoinbase?: boolean;
+	/** Optional CashToken data (category, amount, NFT) carried by this UTXO. */
+	readonly tokenData?: TokenData;
 }
 
 /** Successful transaction submission. */
@@ -103,6 +106,9 @@ export interface Node extends StorageReader {
 
 	/** Add a UTXO to the confirmed set. */
 	readonly addUtxo: (params: AddUtxoParams) => void;
+
+	/** Reset all storage (UTXOs, transactions, mempool, history, headers) to empty. */
+	readonly reset: () => void;
 
 	/** Set or replace the transaction verifier. */
 	readonly setVerifier: (verifier: TxVerifier) => void;
@@ -287,8 +293,13 @@ export function createNode(config?: NodeConfig): Node {
 					lockingBytecode: lockingBytecode ?? new Uint8Array(0),
 				},
 				params.isCoinbase ? { isCoinbase: true } : {},
+				params.tokenData !== undefined ? { tokenData: params.tokenData } : {},
 			),
 		);
+	}
+
+	function reset(): void {
+		storage._test.reset();
 	}
 
 	function mine(timestamp?: number): MineResult {
@@ -386,6 +397,7 @@ export function createNode(config?: NodeConfig): Node {
 		mine,
 		setChainTip,
 		addUtxo,
+		reset,
 		setVerifier,
 		storage,
 		subscriptions,

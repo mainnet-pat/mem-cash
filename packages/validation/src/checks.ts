@@ -6,6 +6,7 @@ import {
 } from "@mem-cash/types";
 import {
 	COINBASE_MATURITY,
+	DUST_RELAY_FEE_PER_KB,
 	LOCKTIME_THRESHOLD,
 	MAX_MONEY,
 	MAX_SCRIPT_SIZE,
@@ -244,32 +245,36 @@ export function checkAbsurdFee(fee: bigint, maxFee: bigint): CheckResult {
  */
 export function checkDustOutputs(
 	outputs: readonly { readonly lockingBytecode: Uint8Array; readonly valueSatoshis: bigint }[],
-	dustRelayFeePerKb: bigint,
+	dustRelayFeePerKb: bigint = DUST_RELAY_FEE_PER_KB,
 ): CheckResult {
 	for (const output of outputs) {
-		// OP_RETURN outputs are exempt from dust checks
-		if (output.lockingBytecode.length > 0 && output.lockingBytecode[0] === OP_RETURN) {
-			continue;
-		}
-		// Empty scripts are unspendable — also exempt
-		if (output.lockingBytecode.length === 0) {
-			continue;
-		}
-
-		// Serialize size of a CTxOut: 8 (value) + compactSize(scriptLen) + scriptLen
-		// For scripts < 253 bytes, compactSize is 1 byte
-		const scriptLen = output.lockingBytecode.length;
-		const outputSize = 8 + (scriptLen < 253 ? 1 : 3) + scriptLen;
-		// 148 = estimated input size to spend (32 prevhash + 4 previndex + 1 scriptLen + 107 sigScript + 4 sequence)
-		const spendSize = outputSize + 148;
-		// Match BCHN: 3 * CFeeRate::GetFee(nSize) — floor division with min 1 sat
-		let feePerOutput = (dustRelayFeePerKb * BigInt(spendSize)) / 1000n;
-		if (feePerOutput === 0n && spendSize > 0 && dustRelayFeePerKb > 0n) feePerOutput = 1n;
-		const dustThreshold = 3n * feePerOutput;
-
-		if (output.valueSatoshis < dustThreshold) {
+		const threshold = getDustThreshold(output, dustRelayFeePerKb);
+		if (threshold === 0n) continue; // exempt (OP_RETURN / empty script)
+		if (output.valueSatoshis < threshold) {
 			return { ok: false, code: REJECT_NONSTANDARD, error: "dust" };
 		}
 	}
 	return CHECK_OK;
+}
+
+/**
+ * Minimum (dust) value for an output - BCHN `GetDustThreshold`: 3 * fee for (outputSize + 148) bytes.
+ * Token-aware via encoded size; returns 0n for unspendable outputs (OP_RETURN / empty), exempt from dust.
+ */
+export function getDustThreshold(
+	output: { readonly lockingBytecode: Uint8Array },
+	dustRelayFeePerKb: bigint = DUST_RELAY_FEE_PER_KB,
+): bigint {
+	const script = output.lockingBytecode;
+	// OP_RETURN and empty scripts are unspendable, hence exempt from dust.
+	if (script.length === 0 || script[0] === OP_RETURN) return 0n;
+
+	// Serialize size of a CTxOut: 8 (value) + compactSize(scriptLen) + scriptLen (1 byte for <253).
+	const outputSize = 8 + (script.length < 253 ? 1 : 3) + script.length;
+	// 148 = estimated input size to spend (32 prevhash + 4 previndex + 1 scriptLen + 107 sig + 4 seq).
+	const spendSize = outputSize + 148;
+	// Match BCHN: 3 * CFeeRate::GetFee(nSize) — floor division with min 1 sat.
+	let feePerOutput = (dustRelayFeePerKb * BigInt(spendSize)) / 1000n;
+	if (feePerOutput === 0n && spendSize > 0 && dustRelayFeePerKb > 0n) feePerOutput = 1n;
+	return 3n * feePerOutput;
 }
