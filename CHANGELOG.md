@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.0.6
+
+- Export `getDustThreshold` - reusable token-aware dust calculator.
+- Add `TxVerifierConfig.skipFeePolicy` - skips min-relay/absurd-fee; keeps consensus/scripts/dust.
+- Add fixed `DUST_RELAY_FEE_PER_KB` constant + `TxVerifierConfig.dustRelayFeePerKb`; dust no longer scales with `minRelayFeePerKb`.
+- Export the now-sync `createVmFacade` (and `VmFacade` type).
+- Add public `reset()` to the Node/Indexer (clears all storage).
+- `Node.addUtxo` accepts `tokenData` for token UTXOs.
+
 ## 0.0.5
 
 Rework createVmFacade to be sync.
