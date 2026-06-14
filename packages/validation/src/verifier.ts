@@ -1,5 +1,9 @@
 import {
 	binToHex,
+	createVirtualMachineBch2023,
+	createVirtualMachineBch2025,
+	createVirtualMachineBch2026,
+	createVirtualMachineBchSpec,
 	decodeTransactionBch,
 	encodeTransactionBch,
 	hashTransactionUiOrder,
@@ -41,22 +45,18 @@ interface VmFacade {
 	};
 }
 
-/**
- * Dynamically import and create a libauth VM for the given version.
- * Only the requested VM version is loaded, keeping other versions tree-shakeable.
- */
-async function createVmFacade(version: VmVersion, standard: boolean): Promise<VmFacade> {
-	const lib = await import("@bitauth/libauth");
+/** Create a libauth VM for the given version. */
+function createVmFacade(version: VmVersion, standard: boolean): VmFacade {
 	const createFn = (() => {
 		switch (version) {
 			case "BCH_2023_05":
-				return lib.createVirtualMachineBch2023;
+				return createVirtualMachineBch2023;
 			case "BCH_2025_05":
-				return lib.createVirtualMachineBch2025;
+				return createVirtualMachineBch2025;
 			case "BCH_2026_05":
-				return lib.createVirtualMachineBch2026;
+				return createVirtualMachineBch2026;
 			case "BCH_SPEC":
-				return lib.createVirtualMachineBchSpec;
+				return createVirtualMachineBchSpec;
 		}
 	})();
 	const vm = createFn(standard);
@@ -135,7 +135,7 @@ type PipelineResult = PipelineSuccess | PipelineFailure;
  * 13. VM verify (most expensive — last)
  * 14. Build ValidatedTransaction
  */
-export async function createTxVerifier(config?: TxVerifierConfig): Promise<TxVerifier> {
+export function createTxVerifier(config?: TxVerifierConfig): TxVerifier {
 	const version = config?.vmVersion ?? "BCH_2025_05";
 	const standard = config?.standard ?? true;
 	const minRelayFeePerKb = config?.minRelayFeePerKb ?? DEFAULT_MIN_RELAY_FEE_PER_KB;
@@ -146,11 +146,11 @@ export async function createTxVerifier(config?: TxVerifierConfig): Promise<TxVer
 	if (maxFee <= 0n) {
 		throw new Error("maxFee must be positive");
 	}
-	const vm = await createVmFacade(version, standard);
+	const vm = createVmFacade(version, standard);
 	// Consensus-only VM for two-pass script verification (BCHN CheckInputs pattern).
 	// When standard=true, a script failure is re-checked with consensus-only flags to
 	// distinguish mandatory vs non-mandatory violations.
-	const consensusVm = standard ? await createVmFacade(version, false) : null;
+	const consensusVm = standard ? createVmFacade(version, false) : null;
 
 	/** Run pre-VM pipeline steps 1-12. Returns validated data or error. */
 	function preVmPipeline(
